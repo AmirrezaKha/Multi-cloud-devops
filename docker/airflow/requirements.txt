@@ -1,0 +1,6 @@
+kafka-python
+pandas
+gcsfs
+azure-eventhub
+azure-storage-blob
+psycopg2

@@ -1,0 +1,6 @@
+atlas:
+  graph:
+    storage:
+      backend: "berkeleyje"
+  server:
+    port: 21000

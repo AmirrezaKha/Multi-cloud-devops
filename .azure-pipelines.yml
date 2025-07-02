@@ -1,0 +1,67 @@
+trigger:
+  branches:
+    include:
+      - main
+
+variables:
+  ACR_NAME: yourACRName
+  AWS_REGION: us-east-1
+  AWS_ACCOUNT_ID: 123456789012
+  EKS_CLUSTER_NAME: your-eks-cluster
+  AKS_RESOURCE_GROUP: your-aks-rg
+  AKS_CLUSTER_NAME: your-aks-cluster
+
+stages:
+  - stage: Build
+    jobs:
+      - job: BuildAndPushDocker
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - checkout: self
+          - task: Docker@2
+            displayName: Build and push Airflow image to ACR
+            inputs:
+              containerRegistry: 'AzureContainerRegistryConnection'
+              repository: 'airflow'
+              command: 'buildAndPush'
+              Dockerfile: 'docker/airflow/Dockerfile'
+              tags: |
+                $(Build.BuildId)
+
+          # Repeat for Spark/Trino and Atlas images
+
+  - stage: DeployTerraform
+    dependsOn: Build
+    jobs:
+      - job: TerraformApply
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - checkout: self
+
+          - task: TerraformInstaller@1
+            inputs:
+              terraformVersion: '1.5.2'
+
+          - script: |
+              terraform init
+              terraform plan -out=tfplan
+              terraform apply -auto-approve tfplan
+            workingDirectory: ./terraform
+
+  - stage: DeployHelm
+    dependsOn: DeployTerraform
+    jobs:
+      - job: DeployHelmCharts
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - checkout: self
+
+          - script: |
+              az aks get-credentials --resource-group $(AKS_RESOURCE_GROUP) --name $(AKS_CLUSTER_NAME)
+              helm upgrade --install spark-trino ./modules/spark_trino/helm_chart -n default --create-namespace
+              helm upgrade --install atlas ./modules/atlas/helm_chart -n default --create-namespace
+              helm upgrade --install airflow ./modules/airflow/helm_chart -n default --create-namespace
+            displayName: Deploy Helm Charts to AKS

@@ -1,0 +1,11 @@
+presto:
+  coordinator:
+    replicas: 1
+  worker:
+    replicas: 2
+
+spark:
+  master:
+    replicas: 1
+  worker:
+    replicas: 2
