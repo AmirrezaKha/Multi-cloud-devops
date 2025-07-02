@@ -135,9 +135,6 @@ Or push DAG changes to your DAGs repo and redeploy Airflow pods if using Git syn
 ## Contributing & Support
 
 - For issues, please open a GitHub issue.
-- Contact DevOps team: devops@yourcompany.com
-- Data engineering questions: dataeng@yourcompany.com
-
 ---
 
 ## License
@@ -146,4 +143,4 @@ MIT License
 
 ---
 
-*Happy data engineering! 🚀*
+
