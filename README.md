@@ -30,8 +30,8 @@ This project implements a data lake and data warehouse platform using Azure and 
 ### 1. Clone the repository
 
 ```bash
-git clone https://your-repo-url.git
-cd your-repo
+git clone https://github.com/AmirrezaKha/Multi-cloud-devops
+cd Multi-cloud-devops
 ```
 
 ### 2. Build and push Docker images
